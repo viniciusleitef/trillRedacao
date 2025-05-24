@@ -15,3 +15,9 @@ export type CorrecaoRedacao = {
     competencia_5: string;
   };
 };
+
+export type CorrectEssayRequest = {
+  essay_text: string;
+  essay_theme: string;
+  essay_motivational_text?: string | null;
+};

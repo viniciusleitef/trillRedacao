@@ -3,102 +3,149 @@ import {
   MainSectionContainer,
   UploadContainer,
   ButtonsBox,
-  UploadBox,
   TranscribedTextContainer,
   ProcessBtn,
-  WriteBox,
-  SelectImageButton,
   WriteWordContainer,
   ShowImageContainer,
-  ResultContainer,
-  Result,
-  BarProgression,
 } from "./styles";
 
-import { useState } from "react";
-import { CiImageOn } from "react-icons/ci";
-import { CiTextAlignCenter } from "react-icons/ci";
+import { useState, useEffect } from "react";
 import { sendImage, correctEssay } from "../../../api/api";
+
 import type { CorrecaoRedacao } from "../../../types";
+import type { CorrectEssayRequest } from "../../../types";
+
+import { EssayTheme } from "../../../components/Essaytheme";
+import { MotivationalText } from "../../../components/MotivationalText";
+import { UploadSection } from "../../../components/UploadSection";
+import { WriteBoxSection } from "../../../components/WriteBoxSection";
+import { ResultSection } from "../../../components/ResultSection";
+import { PopUp } from "../../../components/PopUp";
+import { Loading } from "../../../components/Loading";
 
 type BtnSelectedState = "upload" | "write";
 
 export function MainSection() {
   const [btnSelected, setBtnSelected] = useState<BtnSelectedState>("upload");
   const [imageFile, setImageFile] = useState<File | null>(null);
-  const [dragActive, setDragActive] = useState(false);
   const [correcao, setCorrecao] = useState<CorrecaoRedacao | null>(null);
   const [showTranscribedText, setShowTranscribedText] = useState(false);
   const [ocrText, setOcrText] = useState("");
   const [writtenEssay, setWrittenEssay] = useState("");
+  const [essayTheme, setEssayTheme] = useState("");
+  const [motivationalText, setMotivationalText] = useState("");
+  const [loading, setLoading] = useState(false);
+  const [popUpData, setPopUpData] = useState({
+    text: "",
+    backgroundColor: "",
+  });
 
-  // Arrastar imagem
-  function handleDragOver(e: React.DragEvent) {
-    e.preventDefault();
-    setDragActive(true);
-  }
+  useEffect(() => {
+    if (popUpData.text) {
+      const timer = setTimeout(() => {
+        setPopUpData({
+          text: "",
+          backgroundColor: "",
+        });
+      }, 3000);
 
-  function handleDragLeave() {
-    setDragActive(false);
-  }
-
-  function handleDrop(e: React.DragEvent) {
-    e.preventDefault();
-    setDragActive(false);
-
-    const file = e.dataTransfer.files[0];
-    if (file && file.type.startsWith("image/")) {
-      setImageFile(file);
-      console.log("Imagem recebida:", file);
-    } else {
-      alert("Por favor, envie apenas arquivos de imagem.");
+      return () => clearTimeout(timer);
     }
-  }
-
-  // Arrastar imagem
-
-  function handleSelectImage(e: React.ChangeEvent<HTMLInputElement>) {
-    const file = e.target.files?.[0];
-    if (file && file.type.startsWith("image/")) {
-      setImageFile(file);
-      console.log("Imagem selecionada:", file);
-    }
-  }
+  }, [popUpData.text]);
 
   async function handleSendText() {
-    const data = await correctEssay(writtenEssay);
+    if (!isEssayThemeFilled()) {
+      setPopUpData({
+        text: "Por favor, preencha o tema da redação.",
+        backgroundColor: "#ef4444",
+      });
+      return;
+    }
+
+    const requestData: CorrectEssayRequest = {
+      essay_text: ocrText,
+      essay_theme: essayTheme,
+      essay_motivational_text: motivationalText,
+    };
+    const data = await correctEssay(requestData);
     console.log(data);
+    setPopUpData({
+      text: "Redação corrigida com sucesso",
+      backgroundColor: "#1bb520",
+    });
     setCorrecao(data);
     setImageFile(null);
     setCorrecao(data);
-    setOcrText("")
+    setOcrText("");
     setShowTranscribedText(false);
   }
 
   async function handleSendImage() {
     console.log("Enviando imagem:");
     if (imageFile) {
-      console.log('enviando agora');
+      setLoading(true);
       const data = await sendImage(imageFile);
-      console.log('Texto chegou')
+      setLoading(false);
       console.log(data.essay_text);
+      setPopUpData({
+        text: "Texto processado com sucesso!",
+        backgroundColor: "#1bb520",
+      });
       setOcrText(data.essay_text);
       setShowTranscribedText(true);
     }
   }
 
   async function handleCorrectEssay() {
+    if (!isEssayThemeFilled()) {
+      setPopUpData({
+        text: "Por favor, preencha o tema da redação.",
+        backgroundColor: "#ef4444",
+      });
+      return;
+    }
+
     if (imageFile) {
-      const data = await correctEssay(ocrText);
+      const requestData: CorrectEssayRequest = {
+        essay_text: ocrText,
+        essay_theme: essayTheme,
+        essay_motivational_text: motivationalText,
+      };
+      setLoading(true)
+      const data = await correctEssay(requestData);
+      setLoading(false)
+      setPopUpData({
+        text: "Redação corrigida com sucesso",
+        backgroundColor: "#1bb520",
+      });
       console.log(data);
       setCorrecao(data);
     }
   }
 
+  function isEssayThemeFilled() {
+    if (!essayTheme || essayTheme.trim() === "") {
+      return false;
+    }
+    return true;
+  }
+
   return (
     <MainSectionWrapper>
+      {popUpData.text}
+      {popUpData.text && (
+        <PopUp
+          text={popUpData.text}
+          backgroundColor={popUpData.backgroundColor}
+        />
+      )}
       <MainSectionContainer>
         <UploadContainer>
+          <EssayTheme essayTheme={essayTheme} setEssayTheme={setEssayTheme} />
+          <MotivationalText
+            motivationalText={motivationalText}
+            setMotivationalText={setMotivationalText}
+          />
           <ButtonsBox btnSelected={btnSelected}>
             <p className="upload" onClick={() => setBtnSelected("upload")}>
               Upload de Imagem
@@ -109,65 +156,27 @@ export function MainSection() {
           </ButtonsBox>
 
           {btnSelected == "write" ? (
-            <WriteBox>
-              <CiTextAlignCenter className="icon" size={50} />
-
-              <h3>Digite sua redação completa</h3>
-              <p>Ou utilize a opção de upload de imagem acima</p>
-
-              <textarea
-                name=""
-                id=""
-                placeholder="Digite aqui sua redação completa para análise..."
-                value={writtenEssay}
-                onChange={(e) => setWrittenEssay(e.target.value)}
-              ></textarea>
-
-              <button onClick={handleSendText}>Enviar para a correção</button>
-            </WriteBox>
+            <WriteBoxSection
+              handleSendText={handleSendText}
+              writtenEssay={writtenEssay}
+              setWrittenEssay={setWrittenEssay}
+            />
           ) : (
-            <UploadBox
-              onDragOver={handleDragOver}
-              onDragLeave={handleDragLeave}
-              onDrop={handleDrop}
-              className={dragActive ? "drag-active" : ""}
-            >
-              <CiImageOn className="icon" size={50} />
-              <h3>Arraste e solte a imagem da redação aqui</h3>
-              <p>ou clique para selecionar do seu dispositivo</p>
-
-              <label htmlFor="fileInput">
-                <SelectImageButton as="span">
-                  Selecionar Imagem
-                </SelectImageButton>
-              </label>
-              <input
-                id="fileInput"
-                type="file"
-                accept="image/*"
-                style={{ display: "none" }}
-                onChange={handleSelectImage}
-              />
-              {imageFile && (
-                <p className="imageSelected">
-                  Imagem selecionada: {imageFile.name}
-                </p>
-              )}
-
-              <p>Formatos suportados: JPG, PNG, GIF</p>
-            </UploadBox>
+            <UploadSection imageFile={imageFile} setImageFile={setImageFile} />
           )}
           {showTranscribedText && btnSelected == "upload" && (
             <TranscribedTextContainer>
               <h2>Texto Transcrito</h2>
               <p>{ocrText}</p>
 
-              <button onClick={handleCorrectEssay}>Corrigir Redação</button>
+              <button onClick={handleCorrectEssay}>{loading ? <Loading /> : "Corrigir Redação"}</button>
             </TranscribedTextContainer>
           )}
 
           {imageFile && !showTranscribedText && btnSelected == "upload" && (
-            <ProcessBtn onClick={handleSendImage}>Processar Imagem</ProcessBtn>
+            <ProcessBtn onClick={handleSendImage}>
+              {loading ? <Loading /> : "Processar Imagem"}
+            </ProcessBtn>
           )}
 
           <WriteWordContainer>
@@ -191,51 +200,7 @@ export function MainSection() {
           </ShowImageContainer>
         </UploadContainer>
 
-        <ResultContainer>
-          {correcao ? (
-            <Result>
-              <div className="resultHeader">
-                <h2>Resultado da Correção</h2>
-                <p>
-                  {correcao.nota_final}
-                  <span>/1000</span>
-                </p>
-              </div>
-
-              <h3 className="subTitle">Competências</h3>
-
-              <div className="competenciasBox">
-                {correcao.competencias &&
-                  Object.entries(correcao.competencias).map(([key, value]) => (
-                    <>
-                      <div key={key} className="competencia">
-                        <p>Competência {Number(key.replace(/\D/g, ""))}</p>
-                        <p>{value}/200</p>
-                      </div>
-                      <div className="barBox">
-                        <BarProgression grade={value}></BarProgression>
-                      </div>
-                    </>
-                  ))}
-              </div>
-
-              <h3 className="subTitle">Comentários </h3>
-
-              {correcao.comentarios &&
-                Object.entries(correcao.comentarios).map(([key, value]) => (
-                  <div key={key} className="comentarioCompetencia">
-                    <h4>Competência {Number(key.replace(/\D/g, ""))}:</h4>
-                    <p>{value}</p>
-                  </div>
-                ))}
-            </Result>
-          ) : (
-            <div className="noDoc">
-              <h2>Resultado da Correção</h2>
-              <p>Envie uma imagem da redação para receber a correção.</p>
-            </div>
-          )}
-        </ResultContainer>
+        <ResultSection correcao={correcao} setCorrecao={setCorrecao} />
       </MainSectionContainer>
     </MainSectionWrapper>
   );

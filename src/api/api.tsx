@@ -1,9 +1,10 @@
 import axiosInstance from "./axiosInstance";
+import type { CorrectEssayRequest } from "../types";
 
 export const sendImage = async (imageFile: File) => {
   try {
     const formData = new FormData();
-    formData.append("image", imageFile); 
+    formData.append("image", imageFile);
 
     const response = await axiosInstance.post("/upload-image", formData, {
       headers: {
@@ -18,15 +19,12 @@ export const sendImage = async (imageFile: File) => {
   }
 };
 
-export const correctEssay = async (text: string) => {
+export const correctEssay = async (essayRequest: CorrectEssayRequest) => {
   try {
-    const response = await axiosInstance.post("/correct-essay", {
-      text: text,
-    });
-
+    const response = await axiosInstance.post("/correct-essay", essayRequest);
     return response.data;
   } catch (error) {
     console.error("Erro ao corrigir redação:", error);
     throw error;
   }
-}
+};
