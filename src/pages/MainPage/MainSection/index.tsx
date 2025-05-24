@@ -63,10 +63,12 @@ export function MainSection() {
     }
 
     const requestData: CorrectEssayRequest = {
-      essay_text: ocrText,
+      essay_text: writtenEssay,
       essay_theme: essayTheme,
       essay_motivational_text: motivationalText,
     };
+
+    console.log(requestData)
     const data = await correctEssay(requestData);
     console.log(data);
     setPopUpData({
@@ -111,6 +113,7 @@ export function MainSection() {
         essay_theme: essayTheme,
         essay_motivational_text: motivationalText,
       };
+      console.log(requestData)
       setLoading(true)
       const data = await correctEssay(requestData);
       setLoading(false)
