@@ -1,14 +1,16 @@
 import { WriteBoxContainer } from "./styles";
 import { CiTextAlignCenter } from "react-icons/ci";
 import type { Dispatch, SetStateAction } from 'react';
+import { Loading } from "../Loading";
 
 interface WriteBoxProps {
     handleSendText: () => Promise<void>;
     writtenEssay: string;
     setWrittenEssay: Dispatch<SetStateAction<string>>;
+    loading: boolean;
   }
 
-export function WriteBoxSection({handleSendText, writtenEssay, setWrittenEssay}: WriteBoxProps) {
+export function WriteBoxSection({handleSendText, writtenEssay, setWrittenEssay, loading}: WriteBoxProps) {
     
   return (
     <WriteBoxContainer>
@@ -25,7 +27,7 @@ export function WriteBoxSection({handleSendText, writtenEssay, setWrittenEssay}:
         onChange={(e) => setWrittenEssay(e.target.value)}
       ></textarea>
 
-      <button onClick={handleSendText}>Enviar para a correção</button>
+      <button onClick={handleSendText}>{loading ? <Loading /> : "Enviar para a correção"}</button>
     </WriteBoxContainer>
   );
 }

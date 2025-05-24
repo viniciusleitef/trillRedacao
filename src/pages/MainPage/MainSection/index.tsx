@@ -68,8 +68,10 @@ export function MainSection() {
       essay_motivational_text: motivationalText,
     };
 
-    console.log(requestData)
+    console.log(requestData);
+    setLoading(true)
     const data = await correctEssay(requestData);
+    setLoading(false)
     console.log(data);
     setPopUpData({
       text: "Redação corrigida com sucesso",
@@ -113,10 +115,10 @@ export function MainSection() {
         essay_theme: essayTheme,
         essay_motivational_text: motivationalText,
       };
-      console.log(requestData)
-      setLoading(true)
+      console.log(requestData);
+      setLoading(true);
       const data = await correctEssay(requestData);
-      setLoading(false)
+      setLoading(false);
       setPopUpData({
         text: "Redação corrigida com sucesso",
         backgroundColor: "#1bb520",
@@ -163,6 +165,7 @@ export function MainSection() {
               handleSendText={handleSendText}
               writtenEssay={writtenEssay}
               setWrittenEssay={setWrittenEssay}
+              loading={loading}
             />
           ) : (
             <UploadSection imageFile={imageFile} setImageFile={setImageFile} />
@@ -172,7 +175,9 @@ export function MainSection() {
               <h2>Texto Transcrito</h2>
               <p>{ocrText}</p>
 
-              <button onClick={handleCorrectEssay}>{loading ? <Loading /> : "Corrigir Redação"}</button>
+              <button onClick={handleCorrectEssay}>
+                {loading ? <Loading /> : "Corrigir Redação"}
+              </button>
             </TranscribedTextContainer>
           )}
 
