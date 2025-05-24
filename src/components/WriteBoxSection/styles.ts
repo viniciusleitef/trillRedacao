@@ -28,6 +28,7 @@ export const WriteBoxContainer = styled.div`
     border-radius: 6px;
     border: 1px solid #e7ebf2;
     padding: 0.5rem;
+    resize: vertical;
   }
 
   button {
