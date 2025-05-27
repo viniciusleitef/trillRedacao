@@ -1,8 +1,8 @@
 import styled from "styled-components";
 
 type BarProgressionProps = {
-    grade: number;
-  };
+  grade: number;
+};
 
 export const ResultSectionContainer = styled.div`
   display: flex;
@@ -73,6 +73,12 @@ export const Result = styled.div`
     font-weight: 600;
     margin-top: 0.5rem;
   }
+  .feedbackGeral {
+    font-size: .9rem;
+    margin: 1.5rem 0;
+    max-height: 25rem;
+    overflow-y: auto;
+  }
 
   .competenciasBox {
     width: 100%;
@@ -106,7 +112,7 @@ export const Result = styled.div`
     font-size: 0.825rem;
 
     width: 100%;
-    max-height: 6rem;
+    max-height: 8rem;
     text-align: start;
     overflow-y: auto;
     border-radius: 4px;

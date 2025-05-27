@@ -2,7 +2,6 @@ import styled from "styled-components";
 
 export const UploadSectionContainer = styled.div`
   width: 100%;
-  height: 330px;
   padding: 2rem;
   display: flex;
   justify-content: space-around;
@@ -11,6 +10,7 @@ export const UploadSectionContainer = styled.div`
   border: 2px dashed rgba(150, 150, 150, 0.5);
   border-radius: 8px;
   gap: 1rem;
+  text-align: center;
 
   .icon {
     border-radius: 50%;

@@ -19,6 +19,10 @@ export const MainSectionContainer = styled.div`
     align-items: center;
     padding: 2rem;
   }
+
+  @media (max-width: 450px) {
+    padding: 0;
+  }
 `;
 
 export const UploadContainer = styled.div`
@@ -28,6 +32,10 @@ export const UploadContainer = styled.div`
 
   @media (max-width: 1110px) {
     width: 100%;
+  }
+
+    @media (max-width: 450px) {
+    padding: 0 .5rem;
   }
 `;
 
@@ -157,9 +165,11 @@ export const ShowImageContainer = styled.div`
   width: 100%;
   min-height: 300px;
   max-height: 900px;
+  padding: .5rem;
 
   border: 1px dashed rgba(150, 150, 150, 0.5);
   border-radius: 8px;
+  text-align: center;
 
   p {
     font-size: 0.85rem;

@@ -4,8 +4,8 @@ import { BarProgression } from "./styles";
 import type { CorrecaoRedacao } from "../../types";
 
 interface ResultSectionProps {
-  correcao: CorrecaoRedacao | null
-  setCorrecao: Dispatch<SetStateAction<CorrecaoRedacao | null>>
+  correcao: CorrecaoRedacao | null;
+  setCorrecao: Dispatch<SetStateAction<CorrecaoRedacao | null>>;
 }
 
 export function ResultSection({ correcao }: ResultSectionProps) {
@@ -39,6 +39,11 @@ export function ResultSection({ correcao }: ResultSectionProps) {
           </div>
 
           <h3 className="subTitle">Comentários </h3>
+
+          <div
+            dangerouslySetInnerHTML={{ __html: correcao.feedback_geral }}
+            className="feedbackGeral"
+          />
 
           {correcao.comentarios &&
             Object.entries(correcao.comentarios).map(([key, value]) => (
