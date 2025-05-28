@@ -76,12 +76,12 @@ export const ButtonsBox = styled.div<ButtonsBoxProps>`
 
 export const TranscribedTextContainer = styled.div`
   width: 100%;
-  height: 450px;
+  //height: 450px;
   background-color: white;
   margin: 1rem 0;
   border-radius: 4px;
   box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.2);
-  padding: 2rem;
+  //padding: 2rem;
 
   display: flex;
   justify-content: start;
@@ -90,10 +90,12 @@ export const TranscribedTextContainer = styled.div`
   gap: 1rem;
 
   h2 {
+    display: none;
     width: 100%;
     text-align: left;
   }
   p {
+    display: none;
     overflow-y: auto;
     font-size: 0.9rem;
   }
@@ -106,6 +108,7 @@ export const TranscribedTextContainer = styled.div`
     margin-left: auto;
     margin-top: auto;
     cursor: pointer;
+    width: 100%;
   }
 `;
 
