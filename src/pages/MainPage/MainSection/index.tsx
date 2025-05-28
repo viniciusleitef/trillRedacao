@@ -69,9 +69,9 @@ export function MainSection() {
     };
 
     console.log(requestData);
-    setLoading(true)
+    setLoading(true);
     const data = await correctEssay(requestData);
-    setLoading(false)
+    setLoading(false);
     console.log(data);
     setPopUpData({
       text: "Redação corrigida com sucesso",
@@ -88,15 +88,27 @@ export function MainSection() {
     console.log("Enviando imagem:");
     if (imageFile) {
       setLoading(true);
-      const data = await sendImage(imageFile);
-      setLoading(false);
-      console.log(data.essay_text);
-      setPopUpData({
-        text: "Texto processado com sucesso!",
-        backgroundColor: "#1bb520",
-      });
-      setOcrText(data.essay_text);
-      setShowTranscribedText(true);
+      try {
+        const data = await sendImage(imageFile);
+        console.log(data.essay_text);
+        setPopUpData({
+          text: "Texto processado com sucesso!",
+          backgroundColor: "#1bb520",
+        });
+        setOcrText(data.essay_text);
+        setShowTranscribedText(true);
+      } catch (error: unknown) {
+        console.error("Erro ao processar imagem:", error);
+        const errorMessage =
+          "Erro ao processar a imagem. Por favor, tente novamente.";
+
+        setPopUpData({
+          text: errorMessage,
+          backgroundColor: "#b52b1b",
+        });
+      } finally {
+        setLoading(false);
+      }
     }
   }
 
@@ -168,7 +180,12 @@ export function MainSection() {
               loading={loading}
             />
           ) : (
-            <UploadSection imageFile={imageFile} setImageFile={setImageFile} />
+            <UploadSection
+              imageFile={imageFile}
+              setImageFile={setImageFile}
+              setShowTranscribedText={setShowTranscribedText}
+              setOcrText={setOcrText}
+            />
           )}
           {showTranscribedText && btnSelected == "upload" && (
             <TranscribedTextContainer>

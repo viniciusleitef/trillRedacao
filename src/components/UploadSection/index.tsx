@@ -6,9 +6,11 @@ import { useState } from "react";
 interface UploadSectionProps {
     imageFile: File | null; 
     setImageFile: React.Dispatch<React.SetStateAction<File | null>>;
+    setShowTranscribedText: React.Dispatch<React.SetStateAction<boolean>>;
+    setOcrText: React.Dispatch<React.SetStateAction<string>>;
   }
 
-export function UploadSection({imageFile, setImageFile}:UploadSectionProps) {
+export function UploadSection({imageFile, setImageFile, setShowTranscribedText, setOcrText}:UploadSectionProps) {
   const [dragActive, setDragActive] = useState(false);
   function handleDragOver(e: React.DragEvent) {
     e.preventDefault();
@@ -37,6 +39,8 @@ export function UploadSection({imageFile, setImageFile}:UploadSectionProps) {
     if (file && file.type.startsWith("image/")) {
       setImageFile(file);
       console.log("Imagem selecionada:", file);
+      setShowTranscribedText(false);
+      setOcrText("");
     }
   }
   return (
