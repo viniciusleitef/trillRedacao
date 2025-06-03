@@ -3,20 +3,20 @@ import {
   MainSectionContainer,
   UploadContainer,
   ButtonsBox,
-  TranscribedTextContainer,
+  //TranscribedTextContainer,
   ProcessBtn,
   WriteWordContainer,
   ShowImageContainer,
 } from "./styles";
 
 import { useState, useEffect } from "react";
-import { sendImage, correctEssay } from "../../../api/api";
+import { correctEssay, correctEssayWithText } from "../../../api/api";
 
 import type { CorrecaoRedacao } from "../../../types";
 import type { CorrectEssayRequest } from "../../../types";
 
 import { EssayTheme } from "../../../components/Essaytheme";
-import { MotivationalText } from "../../../components/MotivationalText";
+//import { MotivationalText } from "../../../components/MotivationalText";
 import { UploadSection } from "../../../components/UploadSection";
 import { WriteBoxSection } from "../../../components/WriteBoxSection";
 import { ResultSection } from "../../../components/ResultSection";
@@ -30,7 +30,6 @@ export function MainSection() {
   const [imageFile, setImageFile] = useState<File | null>(null);
   const [correcao, setCorrecao] = useState<CorrecaoRedacao | null>(null);
   const [showTranscribedText, setShowTranscribedText] = useState(false);
-  const [ocrText, setOcrText] = useState("");
   const [writtenEssay, setWrittenEssay] = useState("");
   const [essayTheme, setEssayTheme] = useState("");
   const [motivationalText, setMotivationalText] = useState("");
@@ -42,6 +41,7 @@ export function MainSection() {
 
   useEffect(() => {
     if (popUpData.text) {
+      setMotivationalText('') //REMOVER ISSO DEPOIS
       const timer = setTimeout(() => {
         setPopUpData({
           text: "",
@@ -53,7 +53,7 @@ export function MainSection() {
     }
   }, [popUpData.text]);
 
-  async function handleSendText() {
+  async function handleCorrectEssayWithText() {
     if (!isEssayThemeFilled()) {
       setPopUpData({
         text: "Por favor, preencha o tema da redação.",
@@ -70,7 +70,7 @@ export function MainSection() {
 
     console.log(requestData);
     setLoading(true);
-    const data = await correctEssay(requestData);
+    const data = await correctEssayWithText(requestData);
     setLoading(false);
     console.log(data);
     setPopUpData({
@@ -80,39 +80,10 @@ export function MainSection() {
     setCorrecao(data);
     setImageFile(null);
     setCorrecao(data);
-    setOcrText("");
     setShowTranscribedText(false);
   }
 
-  async function handleSendImage() {
-    console.log("Enviando imagem:");
-    if (imageFile) {
-      setLoading(true);
-      try {
-        const data = await sendImage(imageFile);
-        console.log(data.essay_text);
-        setPopUpData({
-          text: "Texto processado com sucesso!",
-          backgroundColor: "#1bb520",
-        });
-        setOcrText(data.essay_text);
-        setShowTranscribedText(true);
-      } catch (error: unknown) {
-        console.error("Erro ao processar imagem:", error);
-        const errorMessage =
-          "Erro ao processar a imagem. Por favor, tente novamente.";
-
-        setPopUpData({
-          text: errorMessage,
-          backgroundColor: "#b52b1b",
-        });
-      } finally {
-        setLoading(false);
-      }
-    }
-  }
-
-  async function handleCorrectEssay() {
+  async function handleCorrectEssayWithImage() {
     if (!isEssayThemeFilled()) {
       setPopUpData({
         text: "Por favor, preencha o tema da redação.",
@@ -122,21 +93,31 @@ export function MainSection() {
     }
 
     if (imageFile) {
-      const requestData: CorrectEssayRequest = {
-        essay_text: ocrText,
-        essay_theme: essayTheme,
-        essay_motivational_text: motivationalText,
-      };
-      console.log(requestData);
       setLoading(true);
-      const data = await correctEssay(requestData);
-      setLoading(false);
-      setPopUpData({
-        text: "Redação corrigida com sucesso",
-        backgroundColor: "#1bb520",
-      });
-      console.log(data);
-      setCorrecao(data);
+
+      try {
+        const data = await correctEssay(
+          essayTheme,
+          motivationalText,
+          imageFile
+        );
+        setLoading(false);
+
+        setPopUpData({
+          text: "Redação corrigida com sucesso",
+          backgroundColor: "#1bb520",
+        });
+
+        console.log(data);
+        setCorrecao(data);
+      } catch (error: unknown) {
+        console.log(error);
+        setLoading(false);
+        setPopUpData({
+          text: "Erro ao corrigir a redação",
+          backgroundColor: "#ef4444",
+        });
+      }
     }
   }
 
@@ -159,10 +140,13 @@ export function MainSection() {
       <MainSectionContainer>
         <UploadContainer>
           <EssayTheme essayTheme={essayTheme} setEssayTheme={setEssayTheme} />
-          <MotivationalText
-            motivationalText={motivationalText}
-            setMotivationalText={setMotivationalText}
-          />
+          {/*
+            <MotivationalText
+              motivationalText={motivationalText}
+              setMotivationalText={setMotivationalText}
+            />
+            */
+          }
           <ButtonsBox btnSelected={btnSelected}>
             <p className="upload" onClick={() => setBtnSelected("upload")}>
               Upload de Imagem
@@ -174,7 +158,7 @@ export function MainSection() {
 
           {btnSelected == "write" ? (
             <WriteBoxSection
-              handleSendText={handleSendText}
+              handleSendText={handleCorrectEssayWithText}
               writtenEssay={writtenEssay}
               setWrittenEssay={setWrittenEssay}
               loading={loading}
@@ -184,23 +168,12 @@ export function MainSection() {
               imageFile={imageFile}
               setImageFile={setImageFile}
               setShowTranscribedText={setShowTranscribedText}
-              setOcrText={setOcrText}
             />
-          )}
-          {showTranscribedText && btnSelected == "upload" && (
-            <TranscribedTextContainer>
-              <h2>Texto Transcrito</h2>
-              <p>{ocrText}</p>
-
-              <button onClick={handleCorrectEssay}>
-                {loading ? <Loading /> : "Corrigir Redação"}
-              </button>
-            </TranscribedTextContainer>
           )}
 
           {imageFile && !showTranscribedText && btnSelected == "upload" && (
-            <ProcessBtn onClick={handleSendImage}>
-              {loading ? <Loading /> : "Processar Imagem"}
+            <ProcessBtn onClick={handleCorrectEssayWithImage}>
+              {loading ? <Loading /> : "Corrigir Redação"}
             </ProcessBtn>
           )}
 
