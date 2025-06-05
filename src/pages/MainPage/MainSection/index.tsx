@@ -73,6 +73,7 @@ export function MainSection() {
     const data = await correctEssayWithText(requestData);
     setLoading(false);
     console.log(data);
+    console.log(data.text);
     setPopUpData({
       text: "Redação corrigida com sucesso",
       backgroundColor: "#1bb520",
@@ -109,6 +110,7 @@ export function MainSection() {
         });
 
         console.log(data);
+        console.log(data.text);
         setCorrecao(data);
       } catch (error: unknown) {
         console.log(error);

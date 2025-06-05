@@ -14,7 +14,8 @@ export type CorrecaoRedacao = {
     competencia_4: string;
     competencia_5: string;
   };
-  feedback_geral: string
+  feedback_geral: string;
+  text: string
 };
 
 export type CorrectEssayRequest = {
